@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-const Database = await mongoose.connect("mongodb+srv://davidliljequist:Dali0508@databas.rwvmadr.mongodb.net/?retryWrites=true&w=majority&appName=databas")
+const Database = await mongoose.connect("<Database_Key>")
 new Elysia()
 
   .post("/Register-user", async({body, set}) => {
