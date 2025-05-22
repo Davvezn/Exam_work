@@ -12,7 +12,7 @@ import fs from 'fs';
 import path from 'path';
 
 
-const Database = await mongoose.connect("Db_key")
+const Database = await mongoose.connect("mongodb+srv://davidliljequist:Dali0508@databas.rwvmadr.mongodb.net/?retryWrites=true&w=majority&appName=databas")
 new Elysia()
   .use(cors({ origin: "http://localhost:5173" }))
 
