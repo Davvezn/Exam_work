@@ -1,18 +1,20 @@
-<script>
-</script>
-
 <template>
-  <header>
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+  <div id="app">
+    <Header />
+    <RouterView />
+  </div>
 </template>
+  
+<script setup>
+import Header from './components/Header.vue'
+  
 
+</script>
+  
 <style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
 </style>
+  

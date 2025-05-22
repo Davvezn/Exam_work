@@ -1,11 +1,20 @@
 import { Elysia } from "elysia";
+import { cors } from '@elysiajs/cors';
+
 import User from "./modules/User";
+import Pokemon from "./modules/Pokemon";
+
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import AdmZip from 'adm-zip';
+import fs from 'fs';
+import path from 'path';
 
-const Database = await mongoose.connect("<API_KEY>")
+
+const Database = await mongoose.connect("mongodb+srv://davidliljequist:Dali0508@databas.rwvmadr.mongodb.net/?retryWrites=true&w=majority&appName=databas")
 new Elysia()
+  .use(cors({ origin: "http://localhost:5173" }))
 
   .post("/Register-user", async({body, set}) => {
     const {user_f_name, user_l_name, user_password, user_email} = body as {
@@ -62,6 +71,9 @@ new Elysia()
       return {message: "password incorrect, try again"};
     }
 
+    user.lastLogin = new Date();
+    await user.save();
+
     const token = jwt.sign({ id: user._id}, "your_secret_key", {expiresIn : "1hr"});
 
     return {message: "log in succesful good job", token};
@@ -77,6 +89,45 @@ new Elysia()
     } catch (error) {
       
     }
+  })
+  .get("/download-zip", ({ set }) => { //idk what any of this is
+    const zip = new AdmZip();
+
+    const addFolderToZip = (zip: AdmZip, folderPath: string, zipPath: string = '') => {
+      const items = fs.readdirSync(folderPath);
+  
+      for (const item of items) {
+        const fullPath = path.join(folderPath, item);
+        const relPath = path.join(zipPath, item);
+        const stats = fs.statSync(fullPath);
+  
+        if (stats.isDirectory()) {
+          addFolderToZip(zip, fullPath, relPath);
+        } else {
+          const content = fs.readFileSync(fullPath);
+          zip.addFile(relPath, content);
+        }
+      }
+    };
+  
+  
+    if (!fs.existsSync('../backend') || !fs.existsSync('../frontend')) {
+      set.status = 500;
+      return { message: "One or both project folders do not exist" };
+    }
+
+    addFolderToZip(zip, '../backend', 'backend');
+    addFolderToZip(zip, '../frontend', 'frontend');
+    
+  
+    const buffer = zip.toBuffer();
+  
+    return new Response(buffer, {
+      headers: {
+        'Content-Type': 'application/zip',
+        'Content-Disposition': 'attachment; filename=project_bundle.zip',
+      },
+    });
   })
   .post("/income-calc", async({ body, set }) => {
     const {user_income} = body as {user_income: number};
@@ -107,7 +158,51 @@ new Elysia()
       remaining_money: remaining_money.toLocaleString("sv-SE"),
     };
   })
+  .get("/analytics", async ({ query, set}) => {
+    const type = query.type;
+
+    if (!type || type === 'users') {
+      const users = await User.find({}, "created lastLogin");
+      const totalUsers = users.length;
+
+      const loginCounts: Record<string, number> = {};
+      users.forEach(user => {
+        if(user.lastLogin) {
+          const date = new Date(user.lastLogin).toISOString().split("T")[0];
+          loginCounts[date] = (loginCounts[date] || 0) + 1;
+        }
+      });
+
+      const sortedLogins = Object.entries(loginCounts)
+        .sort((a,b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
+        .map(([date, count]) => ({date,count}));
+
+      return {
+        totalUsers,
+        loginActivity: sortedLogins,
+      };
+    }
+
+    if (type === "pokemon") {
+      const totalPokemon = await Pokemon.countDocuments();
+
+      const pokemonByType = await Pokemon.aggregate([
+        {$unwind: "$type"},
+        {$group: {_id: "$type", count: { $sum: 1} } },
+        {$sort: {count: -1} }
+      ]);
+
+      return {
+        totalPokemon,
+        byType: pokemonByType,
+      };
+    }
+
+    // fallback for unkown entry.
+    set.status = 400;
+    return { error: "invalid analytics type"};
+  })
 
 
-  .listen(3000)
+  .listen(3000) 
   console.log("server is running on http://localhost:3000");
