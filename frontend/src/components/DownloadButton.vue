@@ -25,17 +25,17 @@ const downloadProjectZip = async () => {
 
 <style scoped>
 .download-btn {
-    background-color: black;
-    color: white;
+    background-color: rgb(255, 255, 255);
+    color: rgb(3, 165, 119);
     border: none;
     border-radius: 0.5rem;
     font-size: 1rem;
-    box-shadow: 0 4px 8px rgba(0,0,0, 0.1);
+    box-shadow: 0 4px 8px rgba(9, 9, 9, 0.1);
     cursor: pointer;
 }
 
 .download-btn:hover {
-    background-color: blueviolet;
+    background-color: rgb(0, 214, 21);
     transform: scale(1.03);
 }
 </style>

@@ -43,7 +43,7 @@ const fetchAnalysis = async () => {
             datasets: [{
                 label: label,
                 data: [count || 0],
-                backgroundColor: ['#36A2EB']
+                backgroundColor: ['#30ffa2']
             }]
         };
     } catch (error) {
