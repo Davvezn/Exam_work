@@ -12,7 +12,7 @@ import fs from 'fs';
 import path from 'path';
 
 
-const Database = await mongoose.connect("mongodb+srv://davidliljequist:Dali0508@databas.rwvmadr.mongodb.net/?retryWrites=true&w=majority&appName=databas")
+const Database = await mongoose.connect("<DB_key>")
 new Elysia()
   .use(cors({ origin: "http://localhost:5173" }))
 
@@ -90,12 +90,13 @@ new Elysia()
       
     }
   })
-  .get("/download-zip", ({ set }) => { //idk what any of this is
+  .get("/download-zip", ({ set }) => {
     const zip = new AdmZip();
 
     const addFolderToZip = (zip: AdmZip, folderPath: string, zipPath: string = '') => {
       const items = fs.readdirSync(folderPath);
-  
+      
+      //zip folder logic
       for (const item of items) {
         const fullPath = path.join(folderPath, item);
         const relPath = path.join(zipPath, item);
@@ -158,7 +159,7 @@ new Elysia()
       remaining_money: remaining_money.toLocaleString("sv-SE"),
     };
   })
-  .get("/analytics", async ({ query, set}) => {
+  .get("/analytics", async ({ query, set}) => { //chart logic for different data. 
     const type = query.type;
 
     if (!type || type === 'users') {

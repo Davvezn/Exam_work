@@ -34,6 +34,7 @@ const fetchAnalysis = async () => {
         if (!res.ok) throw new Error(`Request failed: ${res.status}`)
         const data = await res.json();
 
+        //select types, modular for some more additions, not many tho
         const label = selectedType.value === 'users' ? 'Users' : 'Pokemon';
         const count = selectedType.value === 'users' ? data.totalUsers : data.totalPokemon;
 
@@ -52,7 +53,7 @@ const fetchAnalysis = async () => {
 
 const renderChart = () => {
     if (chartInstance.value) {
-        chartInstance.value.destroy();
+        chartInstance.value.destroy();//destroys previous or when changing values chart.
         chartInstance.value = null;
     }
 
